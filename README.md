@@ -24,7 +24,7 @@ NCBI_download.py produces a bash script for downloading reference genomes with w
 ```
 usage: NCBI_download.py -t TAXA [-g GENUS] [-o OUT] [-m] [-h]
 
-NCBI Genbank Reference Downloader
+NCBI Genbank Reference Downloader 
 
 Required Arguments:
   -t TAXA, --taxa TAXA  One of either 'fungi', 'bacteria', 'archaea', 'viral' or 'protozoa'
