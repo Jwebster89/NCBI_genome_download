@@ -4,9 +4,11 @@ NCBI_download.py Creates a bash script for downloading all reference genomes of 
 
 ## Quick Usage
 To download all reference sequences of Rhizobia from Genbank.
+
 `./NCBI_download.py -taxa bacteria -genus Rhizobia`
 
 To download all reference sequences of Fusarium from Genbank, using https instead of ftp.
+
 `./NCBI_download.py -t fungi -g Fusarium -m`
 
 ## HTTPS and FTP
@@ -19,7 +21,8 @@ Genomes will be downloaded with a human readable name, e.g. "Fusarium_fujikuroi_
 NCBI_download.py produces a bash script for downloading reference genomes with wget. This allows the user to confirm how many genomes are being downloaded before hand, remove any genomes that are not needed as well as partitioning the download file if bandwith is an issue. All genomes are downloaded in a human readable format and their respective genbank accessions are easily viewed in the download script.
 
 ## Options and Usage
-```usage: NCBI_download.py -t TAXA [-g GENUS] [-o OUT] [-m] [-h]
+```
+usage: NCBI_download.py -t TAXA [-g GENUS] [-o OUT] [-m] [-h]
 
 NCBI Genbank Reference Downloader
 
