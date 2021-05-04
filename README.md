@@ -35,5 +35,4 @@ Required Arguments:
 Optional Arguments:
   -m, --mode_https      Runs in https mode (for networks that are not able to access ftp)
   -h, --help            show this help message and exit
-(base) webstejo@Biotech-JW:~/Projects/Code/NCBI_download$
 ```
