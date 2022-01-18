@@ -34,7 +34,7 @@ class NCBI_downloader():
 		print(f"Seaerching {taxa.lower()}_assembly_summary.txt for {genera}")
 		df = pd.read_csv(taxa.lower()+"_assembly_summary.txt", sep='\t', header=1,low_memory=False)
 		filtered_df=(df[df['organism_name'].str.contains(self.genera)])
-		return(filtered_df[['organism_name','infraspecific_name','ftp_path']])
+		return(filtered_df[['organism_name','infraspecific_name','ftp_path','isolate']])
 
 	def make_ftp(self,table,https):
 		if https:
@@ -51,14 +51,16 @@ class NCBI_downloader():
 	def human_readable(self,table):
 		removed_characters=table['organism_name'] = table['organism_name'].str.replace(' ', "_")
 		strain=table['infraspecific_name']= table['infraspecific_name'].str.replace(' |strain=', "_")
-		df = pd.concat([removed_characters, strain], axis=1)
+		isolate=table['isolate'] = table['isolate'].str.replace(' |strain=', "_")
+		isolate=table['isolate'] = "_" + table['isolate']
+		df = pd.concat([removed_characters, strain, isolate], axis=1)
 		df['human_readable'] = df.fillna('').sum(axis=1)
 		df['human_readable'] = df['human_readable'].astype(str)+'.fna.gz'
 		return(df['human_readable'])
 		
-	def dl_script(self,id,ftp):
+	def dl_script(self,id,ftp,output):
 		print("Preparing a download script of selected genera")
-		with open('download_script.sh','w') as out_handle:
+		with open(f"{output}_download_script.sh",'w') as out_handle:
 			out_handle.write("#!/bin/bash\n")
 			list=[')', '(', '=', ';']
 			for org in range(len(id)):
@@ -71,7 +73,7 @@ class NCBI_downloader():
 		table=self.find_genera(self.genera, self.group)
 		ftp=self.make_ftp(table,self.mode)
 		id=self.human_readable(table)
-		self.dl_script(id,ftp)
+		self.dl_script(id,ftp,self.output)
 		
 
 def main():
