@@ -66,7 +66,7 @@ class NCBI_downloader():
 
     def human_readable(self, table):
         removed_characters = table['organism_name'] = table['organism_name'].str.replace(' ', "_").str.replace("/", "-")
-        strain = table['infraspecific_name'] = table['infraspecific_name'].str.replace(' |strain=', "_").str.replace("/", "-")
+        strain = table['infraspecific_name'] = table['infraspecific_name'].str.replace(' |strain=', "_").str.replace("/", "-").str.replace(" ","")
         isolate = table['isolate'] = table['isolate'].str.replace(' |strain=', "_")
         isolate = table['isolate'] = "_" + table['isolate']
         df = pd.concat([removed_characters, strain, isolate], axis=1)
