@@ -1,40 +1,97 @@
 # NCBI_genome_download
+
 ## Introduction
-NCBI_download.py Creates a bash script for downloading all reference genomes of a specified genus. It takes as input a selected taxonomy and a Genus and will output a download_script.sh that can be executed to download all references from a genus in a human readable format.
+`NCBI_download.py` creates a bash script for downloading genome assemblies from NCBI for a specified genus within a selected taxonomic group. The script searches the relevant NCBI assembly summary table, filters entries based on the selected options, and writes a `wget` download script with human-readable output filenames.
+
+By default, genomes excluded from RefSeq are omitted. Where a paired RefSeq assembly is available, the script uses the corresponding GCF download path; otherwise it retains the original GCA path.
 
 ## Quick Usage
-To download all reference sequences of Rhizobia from Genbank.
 
-`./NCBI_download.py -taxa bacteria -genus Rhizobia -o Rhizobia_all`
+Download all assemblies for *Rhizobium* from the bacterial GenBank summary:
 
-To download all complete reference sequences of Fusarium from Genbank, using https instead of ftp.
+`./NCBI_download.py -t bacteria -g Rhizobium -o Rhizobium_all`
 
-`./NCBI_download.py -t fungi -g Fusarium -m -c -o Fusarium_complete_refseq`
+Download complete or chromosome-level assemblies for *Fusarium* using HTTPS:
+
+`./NCBI_download.py -t fungi -g Fusarium -m -c -o Fusarium_complete`
+
+Download only RefSeq reference genomes for *Erwinia* and include the accession in the output filename:
+
+`./NCBI_download.py -t bacteria -g Erwinia -r -a -o Erwinia_reference`
+
+Download only assemblies from type material for a genus:
+
+`./NCBI_download.py -t fungi -g Fusarium -s -o Fusarium_type_material`
+
+Include genomes that have been excluded from RefSeq:
+
+`./NCBI_download.py -t bacteria -g Erwinia -x -o Erwinia_including_excluded`
 
 ## HTTPS and FTP
-Some networks may not allow FTP access, using -m/--mode_https allows downloading of genomes with HTTPS instead.
 
-## Human readable
-Genomes will be downloaded with a human readable name, e.g. "Fusarium_fujikuroi_KSU_X-10626.fna.gz" instead of "GCA_001023035.1_ASM102303v1_genomic.fna.gz"
-Some entries in NCBI contain not-so-friendly-linux characters. While some of these have been addressed in the code, manual checking may be required before download.
+Some networks do not allow FTP access. Use `-m` / `--mode_https` to generate HTTPS download links instead of FTP links.
+
+## Human-readable filenames
+
+Genomes are downloaded with human-readable filenames, for example:
+
+`Erwinia_persicina_CFBP8803` rather than just the accession.
+
+If `-a` / `--accession` is used, the accession being downloaded is added to the front of the filename, for example:
+
+`GCF_014839105.1_Erwinia_persicina_CFBP8803.fna.gz`
+
+The script attempts to clean problematic filename characters such as spaces, commas, colons, slashes, and square brackets. Manual checking is still recommended before running the generated download script.
 
 ## Complete genomes only
-The -c option allows for download only of genomes with entries as either "Complete" or "Chromosomal"
 
-## Refseq excluded genomes
-Some genomes have been excluded from NCBI Refseq for various reasons, e.g. Unverified source organism, Refseq annotation failing, misassemblies, low quality sequences and mixed culures. These by default are excluded and GCF links are used for genome downloads. The -x flag may be given to instead include these genomes for download, GCA links are then used for all downloads.
+The `-c` / `--complete` option filters the results to include only assemblies with assembly level:
+
+- `Complete Genome`
+- `Chromosome`
+
+## Type material only
+
+The `-s` / `--type_strain` option filters the results to include only assemblies labelled as:
+
+- `assembly from type material` within the assembly summary file.
+
+## Reference genomes only
+
+The `-r` / `--reference` option filters the results to include only assemblies where `refseq_category` is:
+
+- `reference genome`
+
+This is separate from whether the downloaded file is GCA or GCF.
+
+## RefSeq-excluded genomes
+
+Some genomes have been excluded from RefSeq for reasons such as unverified source organism, annotation failures, misassemblies, low-quality sequence, or mixed cultures.
+
+By default, these excluded genomes are omitted. If a paired RefSeq assembly is available for a retained record, the script swaps the GCA-based path to the corresponding GCF-based path. If no paired RefSeq assembly exists, the original GCA path is kept.
+
+The `-x` / `--excluded_from_refseq` flag includes assemblies that would otherwise be excluded.
 
 ## Output
-NCBI_download.py produces a bash script for downloading reference genomes with wget. This allows the user to confirm how many genomes are being downloaded before hand, remove any genomes that are not needed as well as partitioning the download file if bandwith is an issue. All genomes are downloaded in a human readable format and their respective genbank accessions are easily viewed in the download script.
 
-## Options and Usage
-```
-usage: NCBI_download.py -t TAXA [-g GENUS] [-o OUT] [-m] [-c] [-x] [-h]
+`NCBI_download.py` produces a bash script containing `wget` commands. This allows you to:
+
+- inspect how many genomes will be downloaded before starting
+- remove entries you do not want
+- split the download script into smaller batches if bandwidth is limited
+
+All genomes are downloaded with human-readable names, and the accession can optionally be included in the output filename.
+
+## Options and usage
+
+```text
+usage: NCBI_download.py -t TAXA -g GENUS -o OUT [-m] [-c] [-s] [-r] [-x] [-a] [-h]
 
 NCBI Genbank Reference Downloader
 
 Required Arguments:
-  -t TAXA, --taxa TAXA  One of either 'fungi', 'bacteria', 'archaea', 'viral' or 'protozoa'
+  -t TAXA, --taxa TAXA
+                        One of either 'fungi', 'bacteria', 'archaea', 'viral' or 'protozoa'
   -g GENUS, --genus GENUS
                         References to download of selected genus
   -o OUT, --out OUT     Output directory
@@ -42,7 +99,10 @@ Required Arguments:
 Optional Arguments:
   -m, --mode_https      Runs in HTTPS mode (for networks that are not able to access FTP)
   -c, --complete        Filter to include only complete genomes or chromosomes
+  -s, --type_strain     Filter to include only assemblies from type material
+  -r, --reference       Filter to include only RefSeq reference genomes
   -x, --excluded_from_refseq
-                        Include genomes excluded from refseq
+                        Include genomes excluded from RefSeq
+  -a, --accession       Include accession in filename
   -h, --help            Show this help message and exit
-```
+  ```
